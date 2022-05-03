@@ -56,8 +56,15 @@ def mutation(seq, rate=0.05):
     return mutant
 
 
+def ratio_loss_objectives(individual):
+    # do something here for fitness of each individual
+    ratio_loss = abs(self.config.SPLIT_RATIO - (sum(individual.chromosome) / len(individual.chromosome))) ** 2
+    return -ratio_loss
+    
+
 class GeneticAlgorithm:
-    def __init__(self, config):
+    def __init__(self, objectives, config):
+        self.objectives = objectives
         self.config = config
         self.generation = 0
         self.fitness_sum = 0.0
@@ -83,11 +90,6 @@ class GeneticAlgorithm:
             individual.fitness = self.objectives(individual.chromosome)
         self.population = sorted(self.population, key=lambda x: x.fitness, reverse=True)
 
-    def objectives(self, chromosome):
-        # do something here for fitness of each individual
-        ratio_loss = abs(self.config.SPLIT_RATIO - (sum(chromosome) / len(chromosome))) ** 2
-        return -ratio_loss
-
     def natural_selection(self):
         # selecting elites: they shall survive
         elites = self.population[:int(len(self.population) * self.config.ELITES_RATE)]
@@ -107,7 +109,7 @@ class GeneticAlgorithm:
 
 if __name__ == '__main__':
     config = Config(data_size=100)
-    engine = GeneticAlgorithm(config)
+    engine = GeneticAlgorithm(objectives=ratio_loss_objectives, config=config)
 
     # for rank, entity in enumerate(generation.population):
     #     print(rank, entity.fitness, sum(entity.chromosome), entity.chromosome)
