@@ -41,10 +41,10 @@ def reproduce(parents, reproduction_rate=2.0, mutation_rate=0.05):
 def one_point_crossover(parent_a, parent_b, mutation_rate=0.05):
     assert len(parent_a.chromosome) == len(parent_b.chromosome)
     split_point = random.randrange(len(parent_a.chromosome))
-    new_seq_a = mutation(seq_a[:split_point] + seq_b[split_point:], rate=mutation_rate)
-    new_seq_b = mutation(seq_b[:split_point] + seq_a[split_point:], rate=mutation_rate)
-    child_a = Individual(fitness=0.0, chromosome=new_seq_a)
-    child_b = Individual(fitness=0.0, chromosome=new_seq_b)
+    new_chromosome_a = mutation(parent_a.chromosome[:split_point] + parent_b.chromosome[split_point:], rate=mutation_rate)
+    new_chromosome_b = mutation(parent_b.chromosome[:split_point] + parent_a.chromosome[split_point:], rate=mutation_rate)
+    child_a = Individual(fitness=0.0, chromosome=new_chromosome_a)
+    child_b = Individual(fitness=0.0, chromosome=new_chromosome_b)
     return child_a, child_b
 
 
@@ -56,9 +56,9 @@ def mutation(seq, rate=0.05):
     return mutant
 
 
-def ratio_loss_objectives(individual):
+def ratio_loss_objectives(individual, split_ratio):
     # do something here for fitness of each individual
-    ratio_loss = abs(self.config.SPLIT_RATIO - (sum(individual.chromosome) / len(individual.chromosome))) ** 2
+    ratio_loss = abs(split_ratio - (sum(individual.chromosome) / len(individual.chromosome))) ** 2
     return -ratio_loss
     
 
@@ -87,7 +87,7 @@ class GeneticAlgorithm:
 
     def compute_fitness(self):
         for individual in self.population:
-            individual.fitness = self.objectives(individual.chromosome)
+            individual.fitness = self.objectives(individual, split_ratio=self.config.SPLIT_RATIO)
         self.population = sorted(self.population, key=lambda x: x.fitness, reverse=True)
 
     def natural_selection(self):
