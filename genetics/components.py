@@ -72,7 +72,7 @@ class GeneticAlgorithm:
     def __repr__(self):
         return f"<{self.__class__.__name__} - Gen: {self.generation} | Pop: {len(self.population)} | FitSum: {self.fitness_sum}>"
 
-    def forward(self):
+    def evolve(self):
         self.natural_selection()    # decide next generation individuals following POPULATION_SIZE
         self.gen += 1
         self.fitness_sum = sum([individual.fitness for individual in self.population])
@@ -113,7 +113,7 @@ if __name__ == '__main__':
     #     print(rank, entity.fitness, sum(entity.chromosome), entity.chromosome)
 
     for _ in range(100):
-        engine.forward()
+        engine.evolve()
 
     # for rank, entity in enumerate(generation.population):
     #     print(rank, entity.fitness, sum(entity.chromosome), entity.chromosome)
