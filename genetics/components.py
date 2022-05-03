@@ -73,8 +73,8 @@ class GeneticAlgorithm:
         return f"<{self.__class__.__name__} - Gen: {self.generation} | Pop: {len(self.population)} | FitSum: {self.fitness_sum}>"
 
     def evolve(self):
-        self.natural_selection()    # decide next generation individuals following POPULATION_SIZE
-        self.gen += 1
+        self.natural_selection()    # decide next generation population following POPULATION_SIZE
+        self.generation += 1
         self.fitness_sum = sum([individual.fitness for individual in self.population])
         print(self.__repr__())
 
