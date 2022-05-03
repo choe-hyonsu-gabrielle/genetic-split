@@ -1,5 +1,6 @@
 import random
 from itertools import permutations
+from tqdm import tqdm
 import numpy as np
 from scipy.special import softmax
 
@@ -8,9 +9,9 @@ np.random.seed(0)
 
 
 class Config:
-    def __init__(self, data_size=100):
+    def __init__(self, data_size=100, pop_size=100):
         self.LENGTH_OF_CHROMOSOME = data_size       # dimension of encoding: data size to be split
-        self.POPULATION_SIZE = 5000
+        self.POPULATION_SIZE = pop_size
         self.SPLIT_RATIO = 0.5                      # ratio of 0 and 1
         self.ELITES_RATE = 0.15
         self.FERTILE_PARENTS_RATE = 0.5
@@ -68,25 +69,34 @@ class GeneticAlgorithm:
         self.config = config
         self.generation = 0
         self.fitness_sum = 0.0
+        self.fittest = []
         self.population = []
 
         # Population initialization
         for _ in range(self.config.POPULATION_SIZE):
             individual = Individual(0.0, [random.randint(0, 1) for _ in range(self.config.LENGTH_OF_CHROMOSOME)])
             self.population.append(individual)
-        self.compute_fitness()
 
     def __repr__(self):
-        return f"<{self.__class__.__name__} - Gen: {self.generation} | Pop: {len(self.population)} | FitSum: {self.fitness_sum}>"
+        return f"<{self.__class__.__name__} - Generation: {self.generation} " \
+               f"| Population: {len(self.population)} " \
+               f"| FitSum: {self.fitness_sum} " \
+               f"| Fittest: {len(self.fittest)} individuals with {self.fittest[0].fitness} fitness>"
 
     def evolve(self):
+        self.compute_fitness()
         self.natural_selection()    # decide next generation population following POPULATION_SIZE
         self.generation += 1
         self.fitness_sum = sum([individual.fitness for individual in self.population])
+        self.fittest = []
+        highest_fitness = self.population[0].fitness
+        for individual in self.population:
+            if individual.fitness >= highest_fitness:
+                self.fittest.append(individual)
         print(self.__repr__())
 
     def compute_fitness(self):
-        for individual in self.population:
+        for individual in tqdm(self.population, desc=f'[Gen. {self.generation}] Calculating each individuals fitness'):
             individual.fitness = self.objectives(individual, split_ratio=self.config.SPLIT_RATIO)
         self.population = sorted(self.population, key=lambda x: x.fitness, reverse=True)
 
@@ -104,11 +114,10 @@ class GeneticAlgorithm:
         # Replacing population with next generation individuals
         candidates = random.sample(fertile_parents + offsprings, k=self.config.POPULATION_SIZE - len(elites))
         self.population = elites + candidates
-        self.compute_fitness()
 
 
 if __name__ == '__main__':
-    config = Config(data_size=100)
+    config = Config(data_size=100, pop_size=100)
     engine = GeneticAlgorithm(objectives=ratio_loss_objectives, config=config)
 
     # for rank, entity in enumerate(generation.population):
