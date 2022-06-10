@@ -13,10 +13,10 @@ class Config:
         self.LENGTH_OF_CHROMOSOME = data_size       # dimension of encoding: data size to be split
         self.POPULATION_SIZE = pop_size
         self.SPLIT_RATIO = 0.5                      # ratio of 0 and 1
-        self.ELITES_RATE = 0.15
+        self.ELITES_RATE = 0.01
         self.FERTILE_PARENTS_RATE = 0.5
         self.REPRODUCTION_RATE = 3.0
-        self.MUTATION_RATE = 0.05
+        self.MUTATION_RATE = 0.01
 
 
 class Individual:
@@ -81,7 +81,8 @@ class GeneticAlgorithm:
         return f"<{self.__class__.__name__} - Generation: {self.generation} " \
                f"| Population: {len(self.population)} " \
                f"| FitSum: {self.fitness_sum} " \
-               f"| Fittest: {len(self.fittest)} individuals with {self.fittest[0].fitness} fitness>"
+               f"| Fittest: {len(self.fittest)} individuals with {self.fittest[0].fitness} fitness>\n" \
+               f"| Fittest preview: {self.fittest[0].chromosome[:30]}"
 
     def evolve(self):
         self.compute_fitness()
@@ -117,14 +118,16 @@ class GeneticAlgorithm:
 
 
 if __name__ == '__main__':
-    config = Config(data_size=100, pop_size=100)
-    engine = GeneticAlgorithm(objectives=ratio_loss_objectives, config=config)
+    
+    def objectives(individual, split_ratio):
+        score = 0
+        for i in range(0, len(individual.chromosome), 2):
+            if individual.chromosome[i] == 0 and individual.chromosome[i+1] == 1:
+                score += 1
+        return score
+    
+    config = Config(data_size=5000, pop_size=300)
+    engine = GeneticAlgorithm(objectives=objectives, config=config)
 
-    # for rank, entity in enumerate(generation.population):
-    #     print(rank, entity.fitness, sum(entity.chromosome), entity.chromosome)
-
-    for _ in range(100):
+    for _ in range(100000):
         engine.evolve()
-
-    # for rank, entity in enumerate(generation.population):
-    #     print(rank, entity.fitness, sum(entity.chromosome), entity.chromosome)
