@@ -96,7 +96,7 @@ class GeneticAlgorithm:
         for individual in self.population:
             if individual.fitness >= highest_fitness:
                 self.fittest.append(individual)
-        with open(self.config.PICKLE, mode='w') as pkl:
+        with open(self.config.PICKLE, mode='wb') as pkl:
             pickle.dump(self.fittest, pkl)
         print(self.__repr__())
 
