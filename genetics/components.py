@@ -1,3 +1,4 @@
+import pickle
 import random
 from itertools import permutations
 from tqdm import tqdm
@@ -17,6 +18,7 @@ class Config:
         self.FERTILE_PARENTS_RATE = 0.5
         self.REPRODUCTION_RATE = 3.0
         self.MUTATION_RATE = 0.01
+        self.PICKLE = 'fittest.pkl'
 
 
 class Individual:
@@ -85,8 +87,8 @@ class GeneticAlgorithm:
                f"| Fittest preview: {self.fittest[0].chromosome[:30]}"
 
     def evolve(self):
-        self.compute_fitness()
         self.natural_selection()    # decide next generation population following POPULATION_SIZE
+        self.compute_fitness()
         self.generation += 1
         self.fitness_sum = sum([individual.fitness for individual in self.population])
         self.fittest = []
@@ -94,6 +96,8 @@ class GeneticAlgorithm:
         for individual in self.population:
             if individual.fitness >= highest_fitness:
                 self.fittest.append(individual)
+        with open(self.config.PICKLE, mode='w') as pkl:
+            pickle.dump(self.fittest, pkl)
         print(self.__repr__())
 
     def compute_fitness(self):
